@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>кто больше нравится? 💕</title>
+<style>
+• {
+box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
+}
+
+body {
+margin: 0;
+min-height: 100vh;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+background: linear-gradient(160deg, #ffe3f1 0%, #ffd6e8 40%, #fff0f6 100%);
+color: #5a2a3a;
+display: flex;
+justify-content: center;
+align-items: center;
+overflow-x: hidden;
+}
+
+.app {
+width: 100%;
+max-width: 430px;
+min-height: 100vh;
+padding: 18px 16px 28px;
+display: flex;
+flex-direction: column;
+position: relative;
+}
+
+.heart-bg {
+position: fixed;
+inset: 0;
+pointer-events: none;
+overflow: hidden;
+z-index: 0;
+}
+.heart-bg span {
+position: absolute;
+bottom: -40px;
+font-size: 20px;
+opacity: 0.5;
+animation: floatUp linear infinite;
+}
+@keyframes floatUp {
+0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+10% { opacity: 0.6; }
+100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+}
+
+.content {
+position: relative;
+z-index: 1;
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+header {
+text-align: center;
+margin-bottom: 14px;
+}
+
+h1 {
+font-size: 26px;
+margin: 0 0 6px;
+letter-spacing: 0.5px;
+color: #d6336c;
+text-shadow: 0 2px 0 #fff;
+}
+
+.subtitle {
+font-size: 14px;
+color: #a34a6b;
+margin: 0;
+}
+
+.progress-wrap {
+width: 100%;
+height: 10px;
+background: #ffd0e2;
+border-radius: 999px;
+overflow: hidden;
+margin: 14px 0 18px;
+box-shadow: inset 0 1px 3px rgba(214, 51, 108, 0.15);
+}
+.progress {
+height: 100%;
+width: 0%;
+background: linear-gradient(90deg, #ff8fb8, #ff5c93);
+border-radius: 999px;
+transition: width 0.35s ease;
+}
+
+.question {
+text-align: center;
+font-size: 19px;
+font-weight: 700;
+margin: 0 0 16px;
+color: #b03060;
+}
+
+.cards {
+display: flex;
+gap: 12px;
+flex: 1;
+align-items: stretch;
+}
+
+.card {
+flex: 1;
+background: #fff;
+border: 3px solid #ffd0e2;
+border-radius: 24px;
+padding: 10px 10px 16px;
+display: flex;
+flex-direction: column;
+align-items: center;
+cursor: pointer;
+transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+box-shadow: 0 8px 20px rgba(214, 51, 108, 0.12);
+user-select: none;
+}
+
+.card:active {
+transform: scale(0.96);
+}
+
+.card:hover {
+border-color: #ff8fb8;
+}
+
+.card.selected {
+border-color: #ff5c93;
+box-shadow: 0 0 0 3px rgba(255, 92, 147, 0.25), 0 8px 20px rgba(214, 51, 108, 0.2);
+}
+
+.photo {
+width: 100%;
+aspect-ratio: 1 / 1;
+border-radius: 18px;
+overflow: hidden;
+background: #ffeaf3;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-bottom: 10px;
+}
+
+.photo img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+}
+
+.photo .emoji-fallback {
+font-size: 64px;
+}
+
+.name {
+font-size: 15px;
+font-weight: 700;
+text-align: center;
+color: #a3305c;
+line-height: 1.2;
+}
+
+.hint {
+text-align: center;
+font-size: 12px;
+color: #c97a99;
+margin-top: 16px;
+}
+
+.results {
+display: none;
+flex-direction: column;
+flex: 1;
+}
+
+.results h2 {
+text-align: center;
+color: #d6336c;
+font-size: 24px;
+margin: 0 0 4px;
+}
+
+.winner {
+text-align: center;
+background: #fff;
+border: 3px solid #ffd0e2;
+border-radius: 24px;
+padding: 16px;
+margin: 16px 0;
+box-shadow: 0 8px 20px rgba(214, 51, 108, 0.12);
+}
+
+.winner .crown {
+font-size: 30px;
+}
+
+.winner .winner-name {
+font-size: 20px;
+font-weight: 800;
+color: #d6336c;
+margin: 4px 0;
+}
+
+.winner .winner-sub {
+font-size: 13px;
+color: #a34a6b;
+}
+
+.stat-list {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+
+.stat-row {
+background: #fff;
+border-radius: 18px;
+padding: 10px 12px;
+box-shadow: 0 4px 12px rgba(214, 51, 108, 0.08);
+}
+
+.stat-top {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 6px;
+}
+
+.stat-avatar {
+width: 34px;
+height: 34px;
+border-radius: 50%;
+overflow: hidden;
+background: #ffeaf3;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+flex-shrink: 0;
+}
+
+.stat-avatar img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.stat-name {
+font-size: 14px;
+font-weight: 700;
+color: #a3305c;
+flex: 1;
+}
+
+.stat-count {
+font-size: 13px;
+font-weight: 700;
+color: #d6336c;
+}
+
+.bar {
+width: 100%;
+height: 9px;
+background: #ffeaf3;
+border-radius: 999px;
+overflow: hidden;
+}
+
+.bar-fill {
+height: 100%;
+background: linear-gradient(90deg, #ffb3cd, #ff5c93);
+border-radius: 999px;
+transition: width 0.6s ease;
+width: 0%;
+}
+
+.stat-percent {
+font-size: 11px;
+color: #c97a99;
+margin-top: 4px;
+text-align: right;
+}
+
+.btn {
+margin-top: 20px;
+width: 100%;
+padding: 16px;
+border: none;
+border-radius: 999px;
+background: linear-gradient(135deg, #ff8fb8, #ff5c93);
+color: #fff;
+font-size: 17px;
+font-weight: 800;
+cursor: pointer;
+box-shadow: 0 8px 20px rgba(255, 92, 147, 0.35);
+transition: transform 0.15s ease;
+}
+.btn:active {
+transform: scale(0.97);
+}
+
+.fade {
+animation: fadeIn 0.35s ease;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(8px); }
+to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="heart-bg" id="heartBg"></div>
+
+<div class="app">
+<div class="content">
+
+<div id="gameScreen" style="display:flex; flex-direction:column; flex:1;">
+<header>
+<h1>Кто нравится больше? 💕</h1>
+<p class="subtitle">Тапай на любимчика</p>
+</header>
+
+<div class="progress-wrap">
+<div class="progress" id="progress"></div>
+</div>
+
+<p class="question" id="question">Выбери милашку 👇</p>
+
+<div class="cards" id="cards"></div>
+
+<p class="hint">Всего будет <span id="totalRounds">30</span> выборов</p>
+</div>
+
+<div class="results" id="resultsScreen">
+<h2>Статистика 💖</h2>
+
+<div class="winner">
+<div class="crown">👑</div>
+<div class="winner-name" id="winnerName">—</div>
+<div class="winner-sub" id="winnerSub">—</div>
+</div>
+
+<div class="stat-list" id="statList"></div>
+
+<button class="btn" id="restartBtn">если хочешь еще раз 💕</button>
+</div>
+
+</div>
+</div>
+
+<script>
+/* ============================================================
+ЖИВОТНЫЕ
+============================================================ */
+const ANIMALS = [
+{ id: "cat", name: "Кошечка", img: "images/1.jpg", emoji: "🐱" },
+{ id: "dog", name: "Собачка", img: "images/2.jpg", emoji: "🐶" },
+{ id: "parrot", name: "Попугайчик", img: "images/3.jpg", emoji: "🦜" },
+{ id: "rabbit", name: "Кролик", img: "images/4.jpg", emoji: "🐰" },
+{ id: "hamster", name: "Хомячок", img: "images/5.jpg", emoji: "🐹" },
+{ id: "guinea", name: "Морская свинка", img: "images/6.jpg", emoji: "🐹" },
+{ id: "turtle", name: "Черепашка", img: "images/7.jpg", emoji: "🐢" },
+{ id: "red_panda", name: "Красная панда", img: "images/8.jpg", emoji: "🦊" },
+{ id: "koala", name: "Коала", img: "images/9.jpg", emoji: "🐨" },
+{ id: "fox", name: "Лисёнок", img: "images/10.jpg", emoji: "🦊" },
+{ id: "hedgehog", name: "Ёжик", img: "images/11.jpg", emoji: "🦔" },
+{ id: "chinchilla", name: "Шиншила", img: "images/12.jpg", emoji: "🐭" },
+{ id: "penguin", name: "Пингвинчик", img: "images/13.jpg", emoji: "🐧" }
+];
+
+const TOTAL_ROUNDS = 30;
+
+/* ================= ЗВУК ================= */
+let audioCtx = null;
+
+function ensureAudio() {
+if (!audioCtx) {
+try {
+audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+} catch (e) {
+audioCtx = null;
+}
+}
+if (audioCtx && audioCtx.state === "suspended") {
+audioCtx.resume();
+}
+}
+
+function playSelectSound() {
+ensureAudio();
+if (!audioCtx) return;
+const now = audioCtx.currentTime;
+const notes = [880, 1174.66];
+notes.forEach((freq, i) => {
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = "sine";
+osc.frequency.value = freq;
+const start = now + i * 0.07;
+gain.gain.setValueAtTime(0.0001, start);
+gain.gain.exponentialRampToValueAtTime(0.18, start + 0.02);
+gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+osc.connect(gain).connect(audioCtx.destination);
+osc.start(start);
+osc.stop(start + 0.2);
+});
+}
+
+function playWinSound() {
+ensureAudio();
+if (!audioCtx) return;
+const now = audioCtx.currentTime;
+const notes = [659.25, 783.99, 987.77, 1318.51];
+notes.forEach((freq, i) => {
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = "triangle";
+osc.frequency.value = freq;
+const start = now + i * 0.11;
+gain.gain.setValueAtTime(0.0001, start);
+gain.gain.exponentialRampToValueAtTime(0.16, start + 0.03);
+gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+osc.connect(gain).connect(audioCtx.destination);
+osc.start(start);
+osc.stop(start + 0.4);
+});
+}
+
+/* ================= ЛОГИКА ================= */
+let round = 0;
+let scores = {};
+let currentPair = [];
+let locked = false;
+
+const gameScreen = document.getElementById("gameScreen");
+const resultsScreen = document.getElementById("resultsScreen");
+const cardsEl = document.getElementById("cards");
+const progressEl = document.getElementById("progress");
+const questionEl = document.getElementById("question");
+const totalRoundsEl = document.getElementById("totalRounds");
+const statListEl = document.getElementById("statList");
+const winnerNameEl = document.getElementById("winnerName");
+const winnerSubEl = document.getElementById("winnerSub");
+
+totalRoundsEl.textContent = TOTAL_ROUNDS;
+
+function initScores() {
+scores = {};
+ANIMALS.forEach(a => { scores[a.id] = 0; });
+}
+
+function pickRandomPair() {
+const pool = [...ANIMALS];
+const firstIndex = Math.floor(Math.random() * pool.length);
+const first = pool.splice(firstIndex, 1)[0];
+const secondIndex = Math.floor(Math.random() * pool.length);
+const second = pool[secondIndex];
+return [first, second];
+}
+
+function renderPair() {
+  currentPair = pickRandomPair();
+  cardsEl.innerHTML = "";
+  currentPair.forEach(animal => {
+    const card = document.createElement("div");
+    card.className = "card fade";
+
+    const photo = document.createElement("div");
+    photo.className = "photo";
+
+    const img = document.createElement("img");
+    img.src = animal.img;
+    img.alt = animal.name;
+    img.onerror = function() {
+      this.style.display = "none";
+      const fallback = document.createElement("span");
+      fallback.className = "emoji-fallback";
+      fallback.textContent = animal.emoji;
+      photo.innerHTML = "";
+      photo.appendChild(fallback);
+    };
+    photo.appendChild(img);
+
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = animal.name;
+
+    card.appendChild(photo);
+    card.appendChild(name);
+
+    card.addEventListener("click", () => choose(animal.id, card));
+    cardsEl.appendChild(card);
+  });
+  updateProgress();
+  questionEl.textContent = `Выбор ${round + 1} из ${TOTAL_ROUNDS} 💗`;
+}
+function choose(id, card) {
+if (locked) return;
+locked = true;
+playSelectSound();
+card.classList.add("selected");
+scores[id] += 1;
+round += 1;
+setTimeout(() => {
+locked = false;
+if (round >= TOTAL_ROUNDS) {
+showResults();
+} else {
+renderPair();
+}
+}, 220);
+}
+
+function updateProgress() {
+const percent = (round / TOTAL_ROUNDS) * 100;
+progressEl.style.width = percent + "%";
+}
+
+function showResults() {
+  gameScreen.style.display = "none";
+  resultsScreen.style.display = "flex";
+  resultsScreen.classList.add("fade");
+  playWinSound();
+
+  const total = TOTAL_ROUNDS;
+  const sorted = [...ANIMALS].sort((a, b) => scores[b.id] - scores[a.id]);
+  const winner = sorted[0];
+  const winnerPercent = ((scores[winner.id] / total) * 100).toFixed(1);
+
+  winnerNameEl.textContent = winner.name;
+  winnerSubEl.textContent = "Победил с результатом " + scores[winner.id] + " из " + total + " (" + winnerPercent + "%)";
+
+  statListEl.innerHTML = "";
+  sorted.forEach(animal => {
+    const count = scores[animal.id];
+    const percent = ((count / total) * 100).toFixed(1);
+
+    const row = document.createElement("div");
+    row.className = "stat-row";
+
+    const top = document.createElement("div");
+    top.className = "stat-top";
+
+    const avatar = document.createElement("div");
+    avatar.className = "stat-avatar";
+    const avatarImg = document.createElement("img");
+    avatarImg.src = animal.img;
+    avatarImg.alt = animal.name;
+    avatarImg.onerror = function() {
+      avatar.innerHTML = animal.emoji;
+    };
+    avatar.appendChild(avatarImg);
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "stat-name";
+    nameEl.textContent = animal.name;
+
+    const countEl = document.createElement("div");
+    countEl.className = "stat-count";
+    countEl.textContent = count + " раз";
+
+    top.appendChild(avatar);
+    top.appendChild(nameEl);
+    top.appendChild(countEl);
+
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    const barFill = document.createElement("div");
+    barFill.className = "bar-fill";
+    barFill.dataset.width = percent + "%";
+    bar.appendChild(barFill);
+
+    const percentEl = document.createElement("div");
+    percentEl.className = "stat-percent";
+    percentEl.textContent = percent + "%";
+
+    row.appendChild(top);
+    row.appendChild(bar);
+    row.appendChild(percentEl);
+
+    statListEl.appendChild(row);
+  });
+
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".bar-fill").forEach(el => {
+      el.style.width = el.dataset.width;
+    });
+  });
+}
+function restart() {
+round = 0;
+initScores();
+resultsScreen.style.display = "none";
+gameScreen.style.display = "flex";
+progressEl.style.width = "0%";
+renderPair();
+}
+
+document.getElementById("restartBtn").addEventListener("click", restart);
+
+document.body.addEventListener("touchstart", ensureAudio, { once: true });
+document.body.addEventListener("click", ensureAudio, { once: true });
+
+/* ============ ФОНОВЫЕ СЕРДЕЧКИ ============ */
+(function createHearts() {
+const container = document.getElementById("heartBg");
+const hearts = ["💗", "💕", "💖", "❤️", "🩷", "💞"];
+for (let i = 0; i < 18; i++) {
+const span = document.createElement("span");
+span.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+span.style.left = Math.random() * 100 + "%";
+span.style.fontSize = (14 + Math.random() * 16) + "px";
+span.style.animationDuration = (8 + Math.random() * 10) + "s";
+span.style.animationDelay = (Math.random() * 10) + "s";
+container.appendChild(span);
+}
+})();
+
+/* ============ СТАРТ ============ */
+initScores();
+renderPair();
+</script>
+</body>
+</html>
